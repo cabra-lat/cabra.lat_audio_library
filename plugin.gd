@@ -25,6 +25,7 @@ func _edit(object: Object) -> void:
 		remove_control_from_bottom_panel(inspector_plugin)
 		add_control_to_bottom_panel(inspector_plugin, "Audio Library")
 		make_bottom_panel_item_visible(inspector_plugin)
+		inspector_plugin.load_resource(object)
 	else:
 		remove_control_from_bottom_panel(inspector_plugin)
 		hide_bottom_panel()
