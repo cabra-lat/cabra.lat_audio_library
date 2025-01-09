@@ -68,7 +68,7 @@ func update_status_line(resource: Resource = null) -> void:
 func load_stream(collection: String, path: String) -> void:
 	load_stream_preview(path)
 	var sound = ResourceLoader.load(path)
-	print(sound, path)
+	print_debug("Loaded ", path, ": ", sound)
 	if sound:
 		library.add_sound(collection, sound)
 		msg_missing_streams.hide()
@@ -125,10 +125,6 @@ func _on_file_files_selected(paths: PackedStringArray) -> void:
 		load_stream(collection, path)
 #endregion
 
-func _on_stream_list_item_selected(index: int) -> void:
-	var collection = _get_current_collection()
-	audio_player.stream = library[collection][index]
-
 func _on_audio_preview_ready(path: String, preview: Texture2D, thumbnail_preview: Texture2D, id: Variant) -> void:
 	# Handle the preview
 	if preview:
@@ -180,15 +176,30 @@ func _on_collections_item_edited() -> void:
 	var actual_name = library.rename_collection(old_name, new_name)
 	selected.set_text(0,actual_name) # In case the name was invalid and other was generated
 	selected.set_tooltip_text(0,actual_name)
-	print("Renamed collection ", old_name, " to ", actual_name)
+	print_debug("Renamed collection ", old_name, " to ", actual_name)
 #endregion
 
 #region Playback Controls
+func _on_stream_list_item_selected(index: int) -> void:
+	var collection = _get_current_collection()
+	print("Selected item %d collection %s." %  [ index, collection ])
+	audio_player.stream = library.get_sounds(collection)[index]
+
+func _on_stream_list_item_clicked(index: int, at_position: Vector2, mouse_button_index: int) -> void:
+	print("clicked")
+	_on_stream_list_item_selected(index)
+
+func _on_stream_list_item_activated(index: int) -> void:
+	print("activated")
+	_on_stream_list_item_selected(index)
+
 func _on_play_pressed() -> void:
+	if not audio_player.stream: return
 	print_debug("Playing current selected stream %s..." % [audio_player.stream.resource_path])
 	audio_player.play()
 	
 func _on_stop_pressed() -> void:
+	if not audio_player.stream: return
 	print_debug("Stopping current selected stream %s..." % [audio_player.stream.resource_path])
 	audio_player.stop()
 #endregion

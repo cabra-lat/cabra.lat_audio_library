@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AudioLibrary" load_steps=7 format=3 uid="uid://yc21jvmy2jsv"]
+
+[ext_resource type="Script" path="res://addons/cabra.lat_audio_library/audio_library.gd" id="1_lfa47"]
+[ext_resource type="AudioStream" uid="uid://barsarex7gi87" path="res://assets/sounds/camera/Camera_01.wav" id="1_yop7k"]
+[ext_resource type="AudioStream" uid="uid://cty8cqq7pl2yh" path="res://assets/sounds/camera/Camera_02.wav" id="2_8diwf"]
+[ext_resource type="AudioStream" uid="uid://8vb3sv7blqjq" path="res://assets/sounds/camera/Camera_03.wav" id="3_en3c5"]
+[ext_resource type="AudioStream" uid="uid://bafe3lu3h1b6c" path="res://assets/sounds/bathroom/tap_water.wav" id="4_tb8ae"]
+[ext_resource type="AudioStream" uid="uid://d3mlavovme630" path="res://assets/sounds/bathroom/toilet_flush.wav" id="5_eu6u0"]
+
+[resource]
+resource_name = "My Audio"
+script = ExtResource("1_lfa47")
+library = {
+"metalico": Array[AudioStream]([ExtResource("1_yop7k"), ExtResource("2_8diwf"), ExtResource("3_en3c5")]),
+"water": Array[AudioStream]([ExtResource("4_tb8ae"), ExtResource("5_eu6u0")])
+}

@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://bjw370aiqr5m5"]
+[gd_scene load_steps=15 format=3 uid="uid://bjw370aiqr5m5"]
 
 [ext_resource type="Texture2D" uid="uid://dfdfy43xsxqyn" path="res://addons/cabra.lat_audio_library/icons/New.svg" id="1_0j2mr"]
 [ext_resource type="Script" path="res://addons/cabra.lat_audio_library/plugin_panel.gd" id="1_sykpp"]
@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://dke4ejmgolwb6" path="res://addons/cabra.lat_audio_library/icons/Stop.svg" id="6_l6nwj"]
 [ext_resource type="Texture2D" uid="uid://j03afve4v6s5" path="res://addons/cabra.lat_audio_library/icons/PlayStart.svg" id="6_q2jba"]
 [ext_resource type="Texture2D" uid="uid://dh1q0mdqerpya" path="res://addons/cabra.lat_audio_library/icons/Play.svg" id="7_a8vda"]
+[ext_resource type="Texture2D" uid="uid://bc1ei662lertk" path="res://addons/cabra.lat_audio_library/icon.svg" id="14_l2g7s"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -110,6 +111,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
 text = "This resource does not have any collections."
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -202,7 +204,7 @@ layout_mode = 2
 theme_type_variation = &"FlatButton"
 icon = ExtResource("6_0e5tk")
 
-[node name="delete_frame" type="Button" parent="hsc/vsc/vbc_streams/sub_vb/hfc/hbc_actions"]
+[node name="delete_stream" type="Button" parent="hsc/vsc/vbc_streams/sub_vb/hfc/hbc_actions"]
 layout_mode = 2
 theme_type_variation = &"FlatButton"
 icon = ExtResource("3_txjmm")
@@ -229,9 +231,15 @@ texture_filter = 2
 layout_mode = 2
 size_flags_vertical = 3
 select_mode = 2
+allow_reselect = true
 max_text_lines = 2
+item_count = 1
 max_columns = 0
+same_column_width = true
 icon_mode = 0
+fixed_icon_size = Vector2i(100, 100)
+item_0/text = "test.wav"
+item_0/icon = ExtResource("14_l2g7s")
 
 [node name="missing_streams_label" type="Label" parent="hsc/vsc/vbc_streams/sub_vb/stream_list"]
 layout_mode = 1
@@ -240,6 +248,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
 text = "This collection does not have any streams."
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -258,4 +267,6 @@ autowrap_mode = 2
 [connection signal="pressed" from="hsc/vsc/vbc_streams/sub_vb/hfc/playback_container/stop" to="." method="_on_stop_pressed"]
 [connection signal="pressed" from="hsc/vsc/vbc_streams/sub_vb/hfc/playback_container/play" to="." method="_on_play_pressed"]
 [connection signal="pressed" from="hsc/vsc/vbc_streams/sub_vb/hfc/hbc_actions/load" to="." method="_on_load_pressed"]
+[connection signal="item_activated" from="hsc/vsc/vbc_streams/sub_vb/stream_list" to="." method="_on_stream_list_item_activated"]
+[connection signal="item_clicked" from="hsc/vsc/vbc_streams/sub_vb/stream_list" to="." method="_on_stream_list_item_clicked"]
 [connection signal="item_selected" from="hsc/vsc/vbc_streams/sub_vb/stream_list" to="." method="_on_stream_list_item_selected"]

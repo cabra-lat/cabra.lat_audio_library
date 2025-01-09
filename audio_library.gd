@@ -31,6 +31,7 @@ func rename_collection(old_name: String, new_name: String) -> String:
 		var unique_name = AudioLibrary._get_unique_name(library.keys(), new_name)
 		library[unique_name] = library[old_name]
 		library[old_name] = null
+		remove_collection(old_name)
 		return unique_name
 	return old_name
 
@@ -47,10 +48,12 @@ func create_collection(new_name: String) -> String:
 
 func add_sound(collection: String, sound: AudioStream) -> void:
 	var updated = library.get(collection, [])
-	library[collection] = updated.push_back(sound)
+	updated.push_back(sound)
+	library[collection] = updated
 	
-func get_sounds(collection: String) -> Array[AudioStream]:
-	return library.get(collection, [] as Array[AudioStream])
+func get_sounds(collection: String) -> Array:
+	var sounds = library.get(collection, [])
+	return sounds if sounds else []
 
 func has_collection(collection: String) -> bool:
 	return library.has(collection)
