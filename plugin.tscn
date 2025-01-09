@@ -1,0 +1,228 @@
+[gd_scene load_steps=15 format=3 uid="uid://bjw370aiqr5m5"]
+
+[ext_resource type="Texture2D" uid="uid://dfdfy43xsxqyn" path="res://addons/cabra.lat_audio_library/icons/New.svg" id="1_0j2mr"]
+[ext_resource type="Script" path="res://addons/cabra.lat_audio_library/plugin_panel.gd" id="1_sykpp"]
+[ext_resource type="Texture2D" uid="uid://cqkgxj0n5tin7" path="res://addons/cabra.lat_audio_library/icons/ActionCopy.svg" id="2_30yev"]
+[ext_resource type="Texture2D" uid="uid://cpyeqtwuqvyn1" path="res://addons/cabra.lat_audio_library/icons/Remove.svg" id="3_txjmm"]
+[ext_resource type="Texture2D" uid="uid://dddi3nt2ynxwo" path="res://addons/cabra.lat_audio_library/icons/Load.svg" id="4_cfnmj"]
+[ext_resource type="Texture2D" uid="uid://b5cj4pesv7py" path="res://addons/cabra.lat_audio_library/icons/PlayBackwards.svg" id="4_hq733"]
+[ext_resource type="Texture2D" uid="uid://dqkmi2l4v7r1" path="res://addons/cabra.lat_audio_library/icons/ActionPaste.svg" id="5_4eovi"]
+[ext_resource type="Texture2D" uid="uid://dqjg2dwpe0wjd" path="res://addons/cabra.lat_audio_library/icons/PlayStartBackwards.svg" id="5_raf6w"]
+[ext_resource type="Texture2D" uid="uid://l3b4ok1vl0ly" path="res://addons/cabra.lat_audio_library/icons/MoveLeft.svg" id="5_rf7pv"]
+[ext_resource type="Texture2D" uid="uid://bqt4776eiru51" path="res://addons/cabra.lat_audio_library/icons/MoveRight.svg" id="6_0e5tk"]
+[ext_resource type="Texture2D" uid="uid://dke4ejmgolwb6" path="res://addons/cabra.lat_audio_library/icons/Stop.svg" id="6_l6nwj"]
+[ext_resource type="Texture2D" uid="uid://j03afve4v6s5" path="res://addons/cabra.lat_audio_library/icons/PlayStart.svg" id="6_q2jba"]
+[ext_resource type="Texture2D" uid="uid://dh1q0mdqerpya" path="res://addons/cabra.lat_audio_library/icons/Play.svg" id="7_a8vda"]
+[ext_resource type="Texture2D" uid="uid://38wuo55ppmni" path="res://icon.svg" id="14_uvrep"]
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_sykpp")
+
+[node name="file" type="EditorFileDialog" parent="."]
+title = "Open File(s)"
+initial_position = 4
+size = Vector2i(456, 258)
+ok_button_text = "Open"
+file_mode = 1
+
+[node name="dialog" type="AcceptDialog" parent="."]
+
+[node name="HSplitContainer" type="HSplitContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="vbc_materials" type="VBoxContainer" parent="HSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="sub_vb" type="VBoxContainer" parent="HSplitContainer/vbc_materials"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="HSplitContainer/vbc_materials/sub_vb"]
+layout_mode = 2
+text = "Materials List:"
+
+[node name="hbc_material_list" type="HBoxContainer" parent="HSplitContainer/vbc_materials/sub_vb"]
+layout_mode = 2
+
+[node name="new_material" type="Button" parent="HSplitContainer/vbc_materials/sub_vb/hbc_material_list"]
+layout_mode = 2
+size_flags_vertical = 4
+icon = ExtResource("1_0j2mr")
+flat = true
+
+[node name="duplicate" type="Button" parent="HSplitContainer/vbc_materials/sub_vb/hbc_material_list"]
+layout_mode = 2
+size_flags_vertical = 4
+icon = ExtResource("2_30yev")
+flat = true
+
+[node name="VSeparator" type="VSeparator" parent="HSplitContainer/vbc_materials/sub_vb/hbc_material_list"]
+layout_mode = 2
+
+[node name="delete" type="Button" parent="HSplitContainer/vbc_materials/sub_vb/hbc_material_list"]
+layout_mode = 2
+size_flags_vertical = 4
+disabled = true
+icon = ExtResource("3_txjmm")
+flat = true
+icon_alignment = 1
+
+[node name="search_box" type="LineEdit" parent="HSplitContainer/vbc_materials/sub_vb"]
+layout_mode = 2
+placeholder_text = "Filter Materials"
+clear_button_enabled = true
+
+[node name="materials" type="Tree" parent="HSplitContainer/vbc_materials/sub_vb"]
+layout_mode = 2
+size_flags_vertical = 3
+hide_root = true
+
+[node name="missing_materials_label" type="Label" parent="HSplitContainer/vbc_materials/sub_vb/materials"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "This resource does not have any materials."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="vbc_streams" type="VBoxContainer" parent="HSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 5.0
+
+[node name="sub_vb" type="VBoxContainer" parent="HSplitContainer/vbc_streams"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="HSplitContainer/vbc_streams/sub_vb"]
+layout_mode = 2
+text = "Materials List:"
+
+[node name="hfc" type="HFlowContainer" parent="HSplitContainer/vbc_streams/sub_vb"]
+layout_mode = 2
+
+[node name="playback_container" type="HBoxContainer" parent="HSplitContainer/vbc_streams/sub_vb/hfc"]
+layout_mode = 2
+
+[node name="play_bw" type="Button" parent="HSplitContainer/vbc_streams/sub_vb/hfc/playback_container"]
+layout_mode = 2
+tooltip_text = "Play selected animation backwards from end. (Shift+A)"
+theme_type_variation = &"FlatButton"
+icon = ExtResource("4_hq733")
+
+[node name="play_bw_from" type="Button" parent="HSplitContainer/vbc_streams/sub_vb/hfc/playback_container"]
+layout_mode = 2
+tooltip_text = "Play selected animation backwards from current pos. (A)"
+theme_type_variation = &"FlatButton"
+icon = ExtResource("5_raf6w")
+
+[node name="stop" type="Button" parent="HSplitContainer/vbc_streams/sub_vb/hfc/playback_container"]
+layout_mode = 2
+tooltip_text = "Pause/stop animation playback. (S)"
+theme_type_variation = &"FlatButton"
+toggle_mode = true
+icon = ExtResource("6_l6nwj")
+
+[node name="play_from" type="Button" parent="HSplitContainer/vbc_streams/sub_vb/hfc/playback_container"]
+layout_mode = 2
+tooltip_text = "Play selected animation from current pos. (D)"
+theme_type_variation = &"FlatButton"
+icon = ExtResource("6_q2jba")
+
+[node name="play" type="Button" parent="HSplitContainer/vbc_streams/sub_vb/hfc/playback_container"]
+layout_mode = 2
+tooltip_text = "Play selected animation from start. (Shift+D)"
+theme_type_variation = &"FlatButton"
+icon = ExtResource("7_a8vda")
+
+[node name="VSeparator" type="VSeparator" parent="HSplitContainer/vbc_streams/sub_vb/hfc"]
+layout_mode = 2
+
+[node name="hbc_actions" type="HBoxContainer" parent="HSplitContainer/vbc_streams/sub_vb/hfc"]
+layout_mode = 2
+
+[node name="load" type="Button" parent="HSplitContainer/vbc_streams/sub_vb/hfc/hbc_actions"]
+layout_mode = 2
+theme_type_variation = &"FlatButton"
+icon = ExtResource("4_cfnmj")
+
+[node name="VSeparator" type="VSeparator" parent="HSplitContainer/vbc_streams/sub_vb/hfc/hbc_actions"]
+layout_mode = 2
+
+[node name="copy" type="Button" parent="HSplitContainer/vbc_streams/sub_vb/hfc/hbc_actions"]
+layout_mode = 2
+theme_type_variation = &"FlatButton"
+icon = ExtResource("2_30yev")
+
+[node name="paste" type="Button" parent="HSplitContainer/vbc_streams/sub_vb/hfc/hbc_actions"]
+layout_mode = 2
+theme_type_variation = &"FlatButton"
+icon = ExtResource("5_4eovi")
+
+[node name="VSeparator2" type="VSeparator" parent="HSplitContainer/vbc_streams/sub_vb/hfc/hbc_actions"]
+layout_mode = 2
+
+[node name="move_left" type="Button" parent="HSplitContainer/vbc_streams/sub_vb/hfc/hbc_actions"]
+layout_mode = 2
+theme_type_variation = &"FlatButton"
+icon = ExtResource("5_rf7pv")
+
+[node name="move_right" type="Button" parent="HSplitContainer/vbc_streams/sub_vb/hfc/hbc_actions"]
+layout_mode = 2
+theme_type_variation = &"FlatButton"
+icon = ExtResource("6_0e5tk")
+
+[node name="delete_frame" type="Button" parent="HSplitContainer/vbc_streams/sub_vb/hfc/hbc_actions"]
+layout_mode = 2
+theme_type_variation = &"FlatButton"
+icon = ExtResource("3_txjmm")
+
+[node name="VSeparator2" type="VSeparator" parent="HSplitContainer/vbc_streams/sub_vb/hfc"]
+layout_mode = 2
+
+[node name="hbc_stream_duration" type="HBoxContainer" parent="HSplitContainer/vbc_streams/sub_vb/hfc"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HSplitContainer/vbc_streams/sub_vb/hfc/hbc_stream_duration"]
+layout_mode = 2
+text = "Frame Duration:"
+
+[node name="stream_duration" type="SpinBox" parent="HSplitContainer/vbc_streams/sub_vb/hfc/hbc_stream_duration"]
+layout_mode = 2
+step = 0.01
+allow_greater = true
+prefix = "×"
+custom_arrow_step = 0.1
+
+[node name="stream_list" type="ItemList" parent="HSplitContainer/vbc_streams/sub_vb"]
+texture_filter = 2
+layout_mode = 2
+size_flags_vertical = 3
+select_mode = 2
+max_text_lines = 2
+item_count = 1
+max_columns = 0
+icon_mode = 0
+item_0/text = "test"
+item_0/icon = ExtResource("14_uvrep")
+
+[connection signal="dir_selected" from="file" to="." method="_on_file_dir_selected"]
+[connection signal="file_selected" from="file" to="." method="_on_file_file_selected"]
+[connection signal="files_selected" from="file" to="." method="_on_file_files_selected"]
+[connection signal="pressed" from="HSplitContainer/vbc_streams/sub_vb/hfc/hbc_actions/load" to="." method="_on_load_pressed"]
