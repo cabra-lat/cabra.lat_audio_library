@@ -1,7 +1,0 @@
-[gd_resource type="Resource" script_class="AudioLibrary" load_steps=2 format=3 uid="uid://dm7wh10s5et2f"]
-
-[ext_resource type="Script" path="res://addons/cabra.lat_audio_library/audio_library.gd" id="1_a31fv"]
-
-[resource]
-script = ExtResource("1_a31fv")
-material_sounds = {}

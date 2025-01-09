@@ -1,7 +1,7 @@
 @tool
 extends EditorPlugin
 
-var inspector_plugin: Control
+var inspector_plugin: AudioLibraryPanel
 
 func _enter_tree():
 	inspector_plugin = preload("res://addons/cabra.lat_audio_library/plugin.tscn").instantiate()
@@ -25,7 +25,9 @@ func _edit(object: Object) -> void:
 		remove_control_from_bottom_panel(inspector_plugin)
 		add_control_to_bottom_panel(inspector_plugin, "Audio Library")
 		make_bottom_panel_item_visible(inspector_plugin)
-		inspector_plugin.load_resource(object)
+		inspector_plugin.load_resource(object as AudioLibrary)
+		resource_saved.connect(inspector_plugin.update_status_line)
+		inspector_plugin.update_status_line()
 	else:
 		remove_control_from_bottom_panel(inspector_plugin)
 		hide_bottom_panel()
