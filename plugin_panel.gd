@@ -16,6 +16,8 @@ class_name AudioLibraryPanel extends Control
 @onready var msg_missing_streams: Label = $hsc/vsc/vbc_streams/sub_vb/stream_list/missing_streams_label
 @onready var resource_previewer = EditorInterface.get_resource_previewer()
 
+var do_not_refresh: bool = false
+
 func _ready() -> void:
 	collections.clear()
 	stream_list.clear()
@@ -27,6 +29,9 @@ func _get_current_collection() -> String:
 	return current_collection
 
 func load_resource(rsc: AudioLibrary) -> void:
+	if do_not_refresh:
+		do_not_refresh = false
+		return
 	collections.clear()
 	stream_list.clear()
 	if not rsc: return
@@ -141,6 +146,15 @@ func _on_new_pressed(new_name: String = "new_collection") -> TreeItem:
 	msg_missing_collections.hide()
 	return new
 
+func _on_duplicate_pressed() -> TreeItem:
+	var collection = _get_current_collection()
+	var sounds = library.get_sounds(collection)
+	var clone = _on_new_pressed(collection)
+	var clone_name = clone.get_text(0)
+	library.add_sounds(clone_name, sounds)
+	load_current_collection()
+	return clone
+
 func _on_delete_pressed() -> void:
 	var selected = collections.get_selected()
 	if not selected: return
@@ -179,27 +193,50 @@ func _on_collections_item_edited() -> void:
 	print_debug("Renamed collection ", old_name, " to ", actual_name)
 #endregion
 
+#region Collection List Actions
+#endregion
+
 #region Playback Controls
-func _on_stream_list_item_selected(index: int) -> void:
+func _on_stream_list_item_selected(index: int, action: String = "selected") -> void:
 	var collection = _get_current_collection()
-	print("Selected item %d collection %s." %  [ index, collection ])
+	var pretty_actiion = action.to_pascal_case().replace("_","")
+	print_debug("%s item %d from collection %s." %  [pretty_actiion, index, collection ])
 	audio_player.stream = library.get_sounds(collection)[index]
 
 func _on_stream_list_item_clicked(index: int, at_position: Vector2, mouse_button_index: int) -> void:
-	print("clicked")
-	_on_stream_list_item_selected(index)
+	if mouse_button_index == MOUSE_BUTTON_LEFT:
+		do_not_refresh = true
+		_on_stream_list_item_selected(index, "clicked")
+		EditorInterface.inspect_object(library)
 
 func _on_stream_list_item_activated(index: int) -> void:
-	print("activated")
-	_on_stream_list_item_selected(index)
+	_on_stream_list_item_selected(index, "double-clicked")
+	EditorInterface.inspect_object(audio_player.stream)
 
 func _on_play_pressed() -> void:
 	if not audio_player.stream: return
 	print_debug("Playing current selected stream %s..." % [audio_player.stream.resource_path])
 	audio_player.play()
-	
+
 func _on_stop_pressed() -> void:
 	if not audio_player.stream: return
 	print_debug("Stopping current selected stream %s..." % [audio_player.stream.resource_path])
 	audio_player.stop()
+
+func _on_play_from_pressed(initial: int = 0) -> void:
+	stream_list.select(initial) # Don't trigger the signal
+	_on_stream_list_item_selected(initial, "playing from start")
+	audio_player.play()
+	await audio_player.finished
+	if initial + 1 < stream_list.item_count:
+		_on_play_from_pressed(initial + 1)
+
+func _on_play_bw_from_pressed(initial: int = stream_list.item_count - 1) -> void:
+	stream_list.select(initial) # Don't trigger the signal
+	_on_stream_list_item_selected(initial, "playing from end")
+	audio_player.play()
+	await audio_player.finished
+	if initial > 0:
+		_on_play_bw_from_pressed(initial - 1)
+
 #endregion

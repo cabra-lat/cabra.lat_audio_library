@@ -50,6 +50,10 @@ func add_sound(collection: String, sound: AudioStream) -> void:
 	var updated = library.get(collection, [])
 	updated.push_back(sound)
 	library[collection] = updated
+
+func add_sounds(collection: String, sounds: Array[AudioStream]) -> void:
+	for sound in sounds.duplicate():
+		add_sound(collection, sound)
 	
 func get_sounds(collection: String) -> Array:
 	var sounds = library.get(collection, [])

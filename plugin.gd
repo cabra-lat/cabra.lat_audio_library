@@ -28,6 +28,3 @@ func _edit(object: Object) -> void:
 		make_bottom_panel_item_visible(inspector_plugin)
 		inspector_plugin.load_resource(object as AudioLibrary)
 		inspector_plugin.update_status_line()
-	else:
-		remove_control_from_bottom_panel(inspector_plugin)
-		hide_bottom_panel()
