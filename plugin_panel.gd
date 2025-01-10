@@ -279,49 +279,10 @@ func _on_copy_pressed() -> void:
 	copy_dialog.popup()
 
 func _on_move_left_pressed() -> void:
-	var ids = stream_list.get_selected_items()
-	if ids.is_empty():
-		push_warning("No stream selected to move.")
-		return
-
-	for id in ids:
-		if id > 0:
-			var collection = _get_current_collection()
-			var sounds = library.get_sounds(collection)
-
-			# Swap the positions
-			var tmp = sounds[id]
-			sounds[id] = sounds[id - 1]
-			sounds[id - 1] = tmp
-			library.set_sounds(collection, sounds)
-
-			# Update the UI
-			stream_list.move_item(id, id - 1)
-
-	print_debug("Moved selected streams left.")
+	pass # set_sounds not implemented yet
 
 func _on_move_right_pressed() -> void:
-	var ids = stream_list.get_selected_items()
-	if ids.is_empty():
-		push_warning("No stream selected to move.")
-		return
-
-	var max_index = stream_list.item_count - 1
-	for id in ids:
-		if id < max_index:
-			var collection = _get_current_collection()
-			var sounds = library.get_sounds(collection)
-
-			# Swap the positions
-			var tmp = sounds[id]
-			sounds[id] = sounds[id + 1]
-			sounds[id + 1] = tmp
-			library.set_sounds(collection, sounds)
-
-			# Update the UI
-			stream_list.move_item(id, id + 1)
-
-	print_debug("Moved selected streams right.")
+	pass # set_sounds doesn't exist yet
 
 func _on_delete_stream_pressed() -> void:
 	var ids = stream_list.get_selected_items()
