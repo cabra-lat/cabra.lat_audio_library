@@ -58,6 +58,12 @@ func add_sounds(collection: String, sounds: Array[AudioStream]) -> void:
 func get_sounds(collection: String) -> Array:
 	var sounds = library.get(collection, [])
 	return sounds if sounds else []
+	
+func remove_sound(collection: String, sound: Variant) -> void:
+	if sound is int:
+		library[collection].remove_at(sound)
+	if sound is Variant:
+		library[collection].erase(sound)
 
 func has_collection(collection: String) -> bool:
 	return library.has(collection)

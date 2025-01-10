@@ -2,11 +2,16 @@
 class_name AudioLibraryPanel extends Control
 
 @onready var default_icon = preload("res://addons/cabra.lat_audio_library/icon.svg")
+@onready var stop_icon = preload("res://addons/cabra.lat_audio_library/icons/Stop.svg")
+@onready var pause_icon = preload("res://addons/cabra.lat_audio_library/icons/Pause.svg")
 
 @export var library: AudioLibrary
 
 @onready var file_dialog: EditorFileDialog = $file
-@onready var confirm_dialog: AcceptDialog = $dialog
+@onready var delete_dialog: ConfirmationDialog = $delete_confirmation_dialog
+@onready var copy_dialog: ConfirmationDialog = $copy_confirmation_dialog
+@onready var options_copy_dialog: OptionButton = $copy_confirmation_dialog/options
+
 @onready var stream_list: ItemList = $hsc/vsc/vbc_streams/sub_vb/stream_list
 @onready var collections: Tree = $hsc/vsc/vbc_collections/sub_vb/collections
 @onready var audio_player: AudioStreamPlayer = $AudioStreamPlayer
@@ -17,6 +22,7 @@ class_name AudioLibraryPanel extends Control
 @onready var resource_previewer = EditorInterface.get_resource_previewer()
 
 var do_not_refresh: bool = false
+var selected_items: Dictionary = {}
 
 func _ready() -> void:
 	collections.clear()
@@ -159,16 +165,13 @@ func _on_delete_pressed() -> void:
 	var selected = collections.get_selected()
 	if not selected: return
 	var collection = selected.get_text(0)
-	confirm_dialog.dialog_text = "Delete collection %s?" % [ collection ]
-	confirm_dialog.popup()
-
-func _on_dialog_confirmed() -> void:
-	var selected = collections.get_selected()
-	if not selected: return
-	var collection = selected.get_text(0)
-	library.remove_collection(collection)
-	selected.free()
-	load_current_collection()
+	delete_dialog.dialog_text = "Delete collection %s?" % [ collection ]
+	delete_dialog.confirmed.connect(func() -> void:
+		library.remove_collection(collection)
+		selected.free()
+		load_current_collection()
+	, ConnectFlags.CONNECT_ONE_SHOT)
+	delete_dialog.popup()
 
 #region Collections (List of Collections in AudioLibrary)
 func _on_collections_cell_selected() -> void:
@@ -193,9 +196,6 @@ func _on_collections_item_edited() -> void:
 	print_debug("Renamed collection ", old_name, " to ", actual_name)
 #endregion
 
-#region Collection List Actions
-#endregion
-
 #region Playback Controls
 func _on_stream_list_item_selected(index: int, action: String = "selected") -> void:
 	var collection = _get_current_collection()
@@ -213,30 +213,144 @@ func _on_stream_list_item_activated(index: int) -> void:
 	_on_stream_list_item_selected(index, "double-clicked")
 	EditorInterface.inspect_object(audio_player.stream)
 
+func _on_play_from_pressed() -> void:
+	var ids = stream_list.get_selected_items()
+	if ids.is_empty():
+		return
+	_play_from_index(ids[-1], true)
+
+func _on_play_bw_from_pressed() -> void:
+	var ids = stream_list.get_selected_items()
+	if ids.is_empty():
+		return
+	_play_from_index(ids[-1], false)
+
 func _on_play_pressed() -> void:
-	if not audio_player.stream: return
-	print_debug("Playing current selected stream %s..." % [audio_player.stream.resource_path])
+	_play_from_index(0, true)
+
+func _on_play_bw_pressed() -> void:
+	_play_from_index(stream_list.item_count - 1, false)
+
+# Generalized playback function
+func _play_from_index(start_index: int, forward: bool) -> void:
+	var queue = range(start_index, stream_list.item_count) \
+				if forward else range(0, start_index + 1)
+	if not forward:
+		queue.reverse()
+	_play_queue(queue, forward)
+
+# Implementation for playing a queue of items
+func _play_queue(queue: Array, forward: bool) -> void:
+	for id in queue:
+		stream_list.select(id)  # Don't trigger signals
+		_play_item(id, forward)
+		await audio_player.finished  # Wait for the current audio to finish before moving on
+
+# Function to handle playing a single item
+func _play_item(id: int, forward: bool) -> void:
+	_on_stream_list_item_selected(id, "playing_forward" if forward else "playing_backward")
 	audio_player.play()
 
-func _on_stop_pressed() -> void:
+func _on_play_pause_stop_pressed() -> void:
 	if not audio_player.stream: return
 	print_debug("Stopping current selected stream %s..." % [audio_player.stream.resource_path])
 	audio_player.stop()
 
-func _on_play_from_pressed(initial: int = 0) -> void:
-	stream_list.select(initial) # Don't trigger the signal
-	_on_stream_list_item_selected(initial, "playing from start")
-	audio_player.play()
-	await audio_player.finished
-	if initial + 1 < stream_list.item_count:
-		_on_play_from_pressed(initial + 1)
-
-func _on_play_bw_from_pressed(initial: int = stream_list.item_count - 1) -> void:
-	stream_list.select(initial) # Don't trigger the signal
-	_on_stream_list_item_selected(initial, "playing from end")
-	audio_player.play()
-	await audio_player.finished
-	if initial > 0:
-		_on_play_bw_from_pressed(initial - 1)
+func _on_loop_pressed() -> void:
+	pass # Replace with function body.
 
 #endregion
+
+func _on_copy_pressed() -> void:
+	var collection = _get_current_collection()
+	options_copy_dialog.clear()
+	for name in library.library.keys():
+		options_copy_dialog.add_item(name)
+	copy_dialog.confirmed.connect(func() -> void:
+		var copy_collection = options_copy_dialog.text \
+			if not options_copy_dialog.text.is_empty() \
+			else collection + "_copy"
+		library.create_collection(copy_collection)
+		var ids = stream_list.get_selected_items()
+		var sounds = library.get_sounds(collection)
+		for id in ids:
+			library.add_sound(copy_collection, sounds[id])
+	, ConnectFlags.CONNECT_ONE_SHOT)
+	copy_dialog.popup()
+
+func _on_move_left_pressed() -> void:
+	var ids = stream_list.get_selected_items()
+	if ids.is_empty():
+		push_warning("No stream selected to move.")
+		return
+
+	for id in ids:
+		if id > 0:
+			var collection = _get_current_collection()
+			var sounds = library.get_sounds(collection)
+
+			# Swap the positions
+			var tmp = sounds[id]
+			sounds[id] = sounds[id - 1]
+			sounds[id - 1] = tmp
+			library.set_sounds(collection, sounds)
+
+			# Update the UI
+			stream_list.move_item(id, id - 1)
+
+	print_debug("Moved selected streams left.")
+
+func _on_move_right_pressed() -> void:
+	var ids = stream_list.get_selected_items()
+	if ids.is_empty():
+		push_warning("No stream selected to move.")
+		return
+
+	var max_index = stream_list.item_count - 1
+	for id in ids:
+		if id < max_index:
+			var collection = _get_current_collection()
+			var sounds = library.get_sounds(collection)
+
+			# Swap the positions
+			var tmp = sounds[id]
+			sounds[id] = sounds[id + 1]
+			sounds[id + 1] = tmp
+			library.set_sounds(collection, sounds)
+
+			# Update the UI
+			stream_list.move_item(id, id + 1)
+
+	print_debug("Moved selected streams right.")
+
+func _on_delete_stream_pressed() -> void:
+	var ids = stream_list.get_selected_items()
+	if ids.is_empty():
+		print_debug("No stream selected to delete.")
+		return
+
+	var collection = _get_current_collection()
+	if collection.is_empty():
+		print_debug("No collection selected.")
+		return
+
+	for id in ids:
+		library.remove_sound(collection, id)
+
+		# Remove from the stream list
+		stream_list.remove_item(id)
+
+	print_debug("Deleted selected streams.")
+	load_current_collection()
+
+func _on_zoom_less_pressed() -> void:
+	pass # Replace with function body.
+
+func _on_zoom_reset_toggled(toggled_on: bool) -> void:
+	pass # Replace with function body.
+
+func _on_zoom_more_pressed() -> void:
+	pass # Replace with function body.
+
+func _on_stream_duration_value_changed(value: float) -> void:
+	pass # Replace with function body.
