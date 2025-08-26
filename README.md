@@ -2,18 +2,15 @@
 
 ![Godot Adventures](https://blog.cabra.lat/assets/2025/01/11/imgs/godot-adventures.png)
 
-**A Godot Engine plugin that introduces an Audio Library system mimicking the AnimatedSprite2D interface but designed specifically for sounds.** This plugin simplifies sound management based on material collision metadata, allowing you to easily assign and manage sound collections for different materials in your 3D projects.
+**A Godot Engine plugin that introduces an Audio Library system mimicking the SpriteFrames interface but designed specifically for sounds.** This plugin simplifies sound management based on material collision metadata, allowing you to easily assign and manage sound collections for different materials in your projects.
 
 ## Features
 
 - **Material-Based Sound Assignment**: Assign different collision sounds based on object materials
 - **Intuitive Editor Interface**: Familiar workflow similar to Godot's built-in SpriteFrames panel
-- **Easy Sound Management**: Add, remove, and organize sounds without complex dictionary structures
+- **Easy Sound Management**: Organize sounds in collections without complex dictionary structures
 - **Context-Aware Playback**: Play different sounds depending on which part of an object is hit
 - **Editor Integration**: Edit sound collections directly in the Godot editor
-
-## Topics
-audio • game-development • audio-player • godot • godot-engine • godot-engine-editor • godot-engine-4
 
 ## Installation
 
@@ -26,119 +23,148 @@ audio • game-development • audio-player • godot • godot-engine • godot
    - Go to Project > Project Settings > Plugins
    - Find "Audio Material Library" and click "Activate"
 
-## Mini Tutorial: Using the Audio Material Library (Like AnimatedSprite2D)
+## Mini Tutorial: Using the Audio Library (Like SpriteFrames)
 
-This plugin works very similarly to Godot's AnimatedSprite2D node, but for sounds. Here's a step-by-step guide to get you started:
+This plugin works very similarly to Godot's SpriteFrames system (used with AnimatedSprite2D), but for sounds. Here's a step-by-step guide to get you started:
 
-### 1. Setting Up the Resource
+### 1. Understanding the Core Concept
+
+As explained in the [blog post](https://blog.cabra.lat/godot-adventures.html), the creator was frustrated with managing sound collections using dictionaries or unwieldy resource lists. The solution was to create an interface similar to SpriteFrames:
+
+> "I needed something similar but designed for sounds... an interface similar to the `SpriteFrames` panel, which appears when you use the `AnimatedSprite2D` node. With SpriteFrames, you can add animation names and frames for each animation and then play them with a simple call like `animation.play('animation-name')`."
+
+### 2. Setting Up the Resource
 
 1. In the FileSystem dock, right-click and select "New Resource"
-2. Choose "AudioMaterialLibrary" from the list
+2. Choose "AudioLibrary" from the list (this is the core class of the plugin)
 3. Save it with a meaningful name (e.g., `wood_material_sounds.tres`)
 
-### 2. Configuring Sounds (The AnimatedSprite2D Way)
+### 3. Configuring Sound Collections
 
-The interface will look familiar if you've used AnimatedSprite2D:
+The interface will look familiar if you've used SpriteFrames:
 
-1. **Create Material Groups** (like animation names in SpriteFrames):
-   - Click the "+" button to add a new material group
-   - Name it after your material (e.g., "Wood", "Metal", "Glass")
-   - You can have multiple groups for different contexts (e.g., "Wood_Impact", "Wood_Break")
+1. **Create Collections** (like animation names in SpriteFrames):
+   - Click the "+" button to add a new collection
+   - Name it after your material or action (e.g., "Wood", "Metal_Impact", "Glass_Break")
+   - The system automatically handles naming conflicts (like "Wood_2", "Wood_3")
 
-2. **Add Sounds to Each Group**:
-   - Select a material group
+2. **Add Sounds to Collections**:
+   - Select a collection
    - Click "Add Sound" (similar to adding frames in SpriteFrames)
    - Browse and select your sound file (.wav, .ogg)
    - Repeat to add multiple sounds for variety
 
-3. **Configure Sound Properties**:
-   - Adjust volume levels per sound if needed
-   - Set pitch variation range for more natural playback
-   - Configure minimum delay between plays to prevent spamming
-
 ![The Perfect Plugin](https://blog.cabra.lat/assets/2025/01/11/imgs/the-perfect-plugin.png)
-
-### 3. Attaching to Your Objects
-
-1. Select your 3D object with collision shapes
-2. In the Inspector, find the CollisionShape3D node
-3. Add a new property (or use an existing one) called "audio_material"
-4. Assign your AudioMaterialLibrary resource to this property
 
 ### 4. Basic Usage Code
 
 ```gdscript
-# Simple collision handler
-func _on_body_entered(body):
-    # Get the audio material from the colliding body
-    var audio_material = body.get("audio_material")
-    
-    if audio_material:
-        # Play a random sound from the default group
-        audio_material.play_random_sound()
+# Create or load an AudioLibrary resource
+var audio_lib = preload("res://path/to/wood_sounds.tres")
+
+# Add sounds programmatically (if needed)
+if not audio_lib.has_collection("Impact"):
+    audio_lib.create_collection("Impact")
+audio_lib.add_sound("Impact", preload("res://sounds/wood_hit1.wav"))
+audio_lib.add_sound("Impact", preload("res://sounds/wood_hit2.wav"))
+audio_lib.add_sound("Impact", preload("res://sounds/wood_hit3.wav"))
+
+# Play a random sound from a collection
+func play_impact_sound():
+    if audio_lib.has_collection("Impact"):
+        var sounds = audio_lib.get_sounds("Impact")
+        if sounds.size() > 0:
+            var random_index = randi() % sounds.size()
+            $AudioPlayer.stream = sounds[random_index]
+            $AudioPlayer.play()
 ```
 
 ### 5. Advanced Usage Examples
 
-#### Playing Specific Sound Groups
+#### Simple Collision Sound System
 ```gdscript
-# When a character hits a wall with different force levels
-func _on_hit_wall(force):
-    var audio_material = get_audio_material(wall)
+# In your collision handling code
+func _on_body_entered(body):
+    # Get the audio library from the colliding body
+    var audio_lib = body.get("audio_library")
     
-    if force > 10:
-        audio_material.play_random_sound("Wood_Break")  # Play break sounds for hard hits
-    else:
-        audio_material.play_random_sound("Wood_Impact") # Play impact sounds for light hits
+    if audio_lib:
+        # Play a random sound from the "Impact" collection
+        play_sound_from_collection(audio_lib, "Impact")
+
+# Helper function to play sounds from a collection
+func play_sound_from_collection(audio_lib: AudioLibrary, collection: String):
+    var sounds = audio_lib.get_sounds(collection)
+    if sounds.size() > 0:
+        var random_index = randi() % sounds.size()
+        $AudioPlayer.stream = sounds[random_index]
+        $AudioPlayer.play()
 ```
 
-#### Context-Aware Sound Selection
+#### Material-Based Sound System (As Described in the Blog)
 ```gdscript
-# Different sounds based on which part of an object was hit
-func _on_body_part_hit(part_name):
-    var audio_material = get_audio_material(enemy)
+# Set up on your physics objects
+func _ready():
+    # Assign the audio library to the collision object
+    $CollisionShape3D.set("audio_library", preload("res://materials/wood_sounds.tres"))
+
+# In your physics world (e.g., a separate physics processing script)
+func handle_collision(collider, collided_with):
+    # Get the audio library from the collided object
+    var audio_lib = collided_with.get("audio_library")
     
-    # Play different sound based on which body part was hit
-    audio_material.play_random_sound(part_name + "_hit")
-    
-    # Example: If part_name is "head", it will play sounds from "head_hit" group
+    if audio_lib:
+        # Determine appropriate sound collection based on collision
+        var collection = "Impact"
+        if collider.velocity.length() > 10:
+            collection = "HardImpact"
+            
+        play_sound_from_collection(audio_lib, collection)
 ```
 
-#### Adding Sounds Programmatically
+#### Dynamic Sound Collection Management
 ```gdscript
-# Create and configure an audio library at runtime
-var audio_lib = AudioMaterialLibrary.new()
-
-# Add a new material group
-audio_lib.add_material_group("Metal")
-
-# Add sounds to the group
-audio_lib.add_sound_to_group("Metal", preload("metal_clang1.wav"))
-audio_lib.add_sound_to_group("Metal", preload("metal_clang2.wav"))
-audio_lib.add_sound_to_group("Metal", preload("metal_clang3.wav"))
-
-# Configure playback properties
-audio_lib.set_volume_for_group("Metal", 0.8)
-audio_lib.set_pitch_range_for_group("Metal", 0.9, 1.1)  # Slight pitch variation
-
-# Assign to object
-collision_shape.set("audio_material", audio_lib)
+# Create collections dynamically
+func setup_character_sounds():
+    var char_sounds = AudioLibrary.new()
+    
+    # Create collections with automatic unique naming
+    char_sounds.create_collection("Footstep")
+    char_sounds.create_collection("Jump")
+    char_sounds.create_collection("Land")
+    
+    # Add multiple sounds at once
+    var footsteps = [
+        preload("res://sounds/footstep1.wav"),
+        preload("res://sounds/footstep2.wav"),
+        preload("res://sounds/footstep3.wav")
+    ]
+    char_sounds.add_sounds("Footstep", footsteps)
+    
+    # Rename collections safely
+    char_sounds.rename_collection("Footstep", "Character_Footstep")
+    
+    # Save for later use
+    ResourceSaver.save(char_sounds, "res://player_sounds.tres")
 ```
 
 ### 6. Editor Workflow Tips
 
-- **Naming Convention**: Use consistent naming for your material groups (e.g., "MaterialName_Action")
-- **Sound Organization**: Keep similar sounds in the same group for easy management
-- **Preview Button**: Click the play button next to each sound to preview it directly in the editor
-- **Duplicate Groups**: Right-click a group to duplicate it as a starting point for similar materials
+- **Collections are like animations**: Think of collections as "sound animations" - each collection contains multiple sound variations
+- **Naming conventions**: Use descriptive names like "Material_Action" (e.g., "Wood_Impact", "Metal_Slide")
+- **Sound variety**: Add 3-5 sounds per collection for natural variation
+- **Preview sounds**: Click the play button next to each sound to preview it directly in the editor
+- **Resource organization**: Store your AudioLibrary resources in a dedicated folder (e.g., `res://audio/materials/`)
 
 ## Why This Plugin?
 
-Before developing this plugin, managing collision sounds required complex dictionary structures that were difficult to maintain. While Resources offered better editor integration, they became cumbersome when dealing with numerous sound collections.
+As detailed in the [Godot Adventures blog post](https://blog.cabra.lat/godot-adventures.html), this plugin solves a real problem:
+
+> "Initially, I used a `Dictionary` to map materials to an `Array` of sounds and then played the appropriate sound. While it worked, the system was difficult to maintain and adding new sounds was cumbersome. To address this, I switched to using a `Resource`, which essentially wraps the `Dictionary` and allows for easier editing within the Godot editor. However, this approach introduced its own challenge: scrolling through an overwhelming number of resources to find the one I wanted to add."
 
 This plugin bridges the gap by providing:
-- A visual interface for managing sound collections (mimicking the AnimatedSprite2D workflow)
-- Streamlined workflow similar to Godot's built-in animation system
+- A visual interface for managing sound collections (mimicking the SpriteFrames workflow)
+- Streamlined workflow for adding and editing sound collections
 - Easy integration with physics-based interactions
 
 ## Development Status
@@ -155,4 +181,4 @@ Created by Cabra, as documented in the [Godot Adventures blog post](https://blog
 
 ---
 
-*This plugin is designed for Godot 4.X and leverages the improved State Machine features mentioned in the blog post.*
+*This plugin is designed for Godot 4.X and provides a more intuitive way to manage sound collections compared to manual dictionary management.*
