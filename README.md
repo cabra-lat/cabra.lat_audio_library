@@ -1,16 +1,19 @@
-# Godot Audio Material Library
+# Audio Material Library for Godot
 
 ![Godot Adventures](https://blog.cabra.lat/assets/2025/01/11/imgs/godot-adventures.png)
 
-A Godot Engine plugin that simplifies sound management based on material collision metadata. Inspired by SpriteFrames panel, this plugin allows you to easily assign and manage sound collections for different materials in your 3D projects.
+**A Godot Engine plugin that introduces an Audio Library system mimicking the AnimatedSprite2D interface but designed specifically for sounds.** This plugin simplifies sound management based on material collision metadata, allowing you to easily assign and manage sound collections for different materials in your 3D projects.
 
 ## Features
 
 - **Material-Based Sound Assignment**: Assign different collision sounds based on object materials
-- **Intuitive Editor Interface**: Similar to Godot's built-in SpriteFrames panel
+- **Intuitive Editor Interface**: Familiar workflow similar to Godot's built-in SpriteFrames panel
 - **Easy Sound Management**: Add, remove, and organize sounds without complex dictionary structures
 - **Context-Aware Playback**: Play different sounds depending on which part of an object is hit
 - **Editor Integration**: Edit sound collections directly in the Godot editor
+
+## Topics
+audio • game-development • audio-player • godot • godot-engine • godot-engine-editor • godot-engine-4
 
 ## Installation
 
@@ -44,7 +47,7 @@ func _on_body_entered(body):
 Before developing this plugin, managing collision sounds required complex dictionary structures that were difficult to maintain. While Resources offered better editor integration, they became cumbersome when dealing with numerous sound collections.
 
 This plugin bridges the gap by providing:
-- A visual interface for managing sound collections
+- A visual interface for managing sound collections (mimicking the AnimatedSprite2D workflow)
 - Streamlined workflow similar to Godot's built-in animation system
 - Easy integration with physics-based interactions
 
