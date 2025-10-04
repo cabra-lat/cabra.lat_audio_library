@@ -70,6 +70,7 @@ func load_stream_preview(path) -> void:
 	resource_previewer.queue_resource_preview(path, self, "_on_audio_preview_ready", id)
 
 func update_status_line(resource: Resource = null) -> void:
+	if not library: return
 	msg_current_library.text = '%s%s%s' % [
 		"%s - "  % (library.resource_name if library.resource_name else "Unnamed"),
 		"(%s)" % library.resource_path if library.resource_path else "",
